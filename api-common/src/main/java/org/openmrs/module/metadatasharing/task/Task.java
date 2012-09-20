@@ -36,6 +36,8 @@ public abstract class Task {
 	
 	private List<TaskLogEntry> errors = new CopyOnWriteArrayList<TaskLogEntry>();
 	
+	private TaskReport taskReport = new TaskReport(logs);
+	
 	private volatile boolean active;
 	
 	private volatile boolean completed;
@@ -91,6 +93,14 @@ public abstract class Task {
 		return errors;
 	}
 	
+	public TaskReport getTaskReport() {
+		return taskReport;
+	}
+	
+	public void setTaskReport(TaskReport taskReport) {
+		this.taskReport = taskReport;
+	}
+	
 	/**
 	 * @return the active
 	 */
@@ -125,6 +135,13 @@ public abstract class Task {
 		TaskLogEntry error = new TaskLogEntry(message, new TaskException(message, exception));
 		logs.add(error);
 		errors.add(error);
+	}
+	
+	protected void logWarning(String message, Exception exception) {
+		log.warn(message, new TaskException(message, exception));
+		
+		TaskLogEntry warning = new TaskLogEntry(message, new TaskException(message, exception));
+		logs.add(warning);
 	}
 	
 	protected void log(String message) {

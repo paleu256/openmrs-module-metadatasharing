@@ -25,11 +25,13 @@ window.setTimeout(function() {
 			<spring:message code="metadatasharing.task.running" />
 		</c:when>
 		<c:when test="${empty task.errors}">
-			<spring:message code="metadatasharing.task.completed" />
+			<b></b><spring:message code="metadatasharing.task.completed" /><br />
+			Download task report <a href="download.form?uuid=${task.uuid}">here</a></b>
 		</c:when>
 		<c:otherwise>
-			<span class="errors"><spring:message
-					code="metadatasharing.task.failed" /></span>
+			<b><span class="errors"><spring:message
+					code="metadatasharing.task.failed" /></span><br />
+			Download task report <a href="download.form?uuid=${task.uuid}">here</a></b>
 		</c:otherwise>
 	</c:choose>
 	<c:if test="${!empty task.errors}">

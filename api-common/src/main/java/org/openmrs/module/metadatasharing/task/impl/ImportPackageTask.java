@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.metadatasharing.task.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
@@ -76,6 +77,8 @@ public class ImportPackageTask extends Task {
 			log("Saving import state");
 			packageImporter.saveState();
 			packageImporter.clearState();
+			
+			getTaskReport().setMetadataPackage(packageImporter.getImportedPackage().getSerializedPackageStream());
 			
 			int partsCount = packageImporter.getPartsCount();
 			
@@ -173,6 +176,21 @@ public class ImportPackageTask extends Task {
 		log("Preparing items to save");
 		prepareItemsToSave(importedItems, incomingToExisting);
 		
+		log("Preparing after merging task report");
+		final List<Object> reoportItems = new ArrayList<Object>();
+		for (ImportedItem importedItem : importedItems) {
+	        if (importedItem.getExisting() != null) {
+	        	reoportItems.add(importedItem.getExisting());
+	        } else {
+	        	reoportItems.add(importedItem.getIncoming());
+	        }
+        }
+		try {
+			getTaskReport().addMetadataAfterMerging(reoportItems);
+		} catch (Exception e) {
+			logWarning("Failed to prepare after merging task report", e);
+		}
+		
 		log("Validating items");
 		Errors errors = new BindException(importedItems, "items");
 		for (ImportedItem importedItem : importedItems) {
@@ -242,6 +260,8 @@ public class ImportPackageTask extends Task {
 	}
 	
 	public void reloadExistingItems(Collection<ImportedItem> importedItems) {
+		List<Object> reportItems = new ArrayList<Object>();
+		
 		for (ImportedItem importedItem : importedItems) {
 			if (importedItem.getExisting() != null) {
 				Object item = Handler.getItemByUuid(importedItem.getExisting().getClass(),
@@ -253,7 +273,15 @@ public class ImportPackageTask extends Task {
 				}
 				
 				importedItem.setExisting(item);
+				
+				reportItems.add(item);
 			}
+		}
+		
+		try {
+			getTaskReport().addMetadataBeforeMerging(reportItems);
+		} catch (Exception e) {
+			logWarning("Failed to prepare before merging task report", e);
 		}
 	}
 	

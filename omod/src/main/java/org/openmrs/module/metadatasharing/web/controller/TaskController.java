@@ -15,14 +15,18 @@ package org.openmrs.module.metadatasharing.web.controller;
 
 import javax.servlet.http.HttpSession;
 
+import org.openmrs.module.metadatasharing.ExportedPackage;
+import org.openmrs.module.metadatasharing.MetadataSharing;
 import org.openmrs.module.metadatasharing.MetadataSharingConsts;
 import org.openmrs.module.metadatasharing.task.Task;
 import org.openmrs.module.metadatasharing.task.TaskEngine;
 import org.openmrs.module.metadatasharing.web.utils.WebUtils;
+import org.openmrs.module.metadatasharing.web.view.DownloadTaskReportView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -42,8 +46,13 @@ public class TaskController {
 	
 	public static final String DETAILS_PATH = TASK_PATH + "/details";
 	
+	public static final String DOWNLOAD_PATH = TASK_PATH + "/download";
+	
 	@Autowired
 	private TaskEngine taskEngine;
+	
+	@Autowired
+	private DownloadTaskReportView downloadTaskReportView;
 	
 	@RequestMapping(value = LIST_PATH)
 	public void list(Model model) {
@@ -60,5 +69,12 @@ public class TaskController {
 	public void details(String uuid, Model model) {
 		Task task = taskEngine.getTask(uuid);
 		model.addAttribute(TASK, task);
+	}
+	
+	@RequestMapping(DOWNLOAD_PATH)
+	public ModelAndView download(String uuid, Model model) {
+		Task task = taskEngine.getTask(uuid);
+		model.addAttribute(TASK, task);
+		return new ModelAndView(downloadTaskReportView);
 	}
 }
